@@ -5,9 +5,16 @@ pipeline {
             args '-v /root/.m2:/root/.m2'
         }
     }
+	parameters {
+        string(name: 'repository', 
+			defaultValue: 'https://github.com/mefmor/maven-positive-test1.git', 
+			description: 'Repository that will be used as test')
+    }
     stages {
 		stage('Checkout') {
-			git 'https://github.com/mefmor/maven-positive-test1.git'
+			steps {
+				git "${params.repository}"
+			}
 		}
         stage('Build') {
             steps {
