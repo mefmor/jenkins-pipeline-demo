@@ -24,6 +24,10 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'mvn test'
+
+				script {
+					env.TEST_WORKSPACE = env.WORKSPACE
+				}
             }
             post {
                 always {
