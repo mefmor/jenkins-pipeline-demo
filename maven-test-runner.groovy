@@ -9,14 +9,13 @@ pipeline {
         string(name: 'repository', 
 			defaultValue: 'https://github.com/mefmor/maven-positive-test1.git', 
 			description: 'Repository that will be used as test')
+		string(name: 'store_folder',
+			defaultValue: ".",
+			description: 'Path to the directory where the results will be uploaded')
     }
     stages {
 		stage('Checkout') {
 			steps {
-				script {
-					env.TEST_WORKSPACE = env.WORKSPACE
-				}
-				
 				git "${params.repository}"
 			}
 		}
@@ -31,6 +30,8 @@ pipeline {
             }
             post {
                 always {
+					sh "mkdir -p ${params.store_folder}"
+					sh "cp -r ./target/surefire-reports/*.xml ${params.store_folder}"
                     junit 'target/surefire-reports/*.xml'
                 }
             }

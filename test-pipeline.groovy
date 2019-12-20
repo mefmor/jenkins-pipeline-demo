@@ -1,7 +1,7 @@
 pipeline {
 	agent any
 	stages {
-		stage('clean') {
+		stage('Clean workspace') {
 			steps {
 				deleteDir()
 			}
@@ -11,32 +11,36 @@ pipeline {
 			parallel {
 				stage('maven-positive-test1') {
 					steps {
-						script {
-							def testRunner = build job: 'test-runner', parameters: [
-								string(name: 'repository', value: 'https://github.com/mefmor/maven-positive-test1.git')]
-							
-							sh "cp -r ${testRunner.getBuildVariables()['TEST_WORKSPACE']}/target/surefire-reports/*.xml ."
-							
-							junit '*.xml'
-							
-						}
+						build job: 'test-runner', parameters: [
+							string(name: 'repository', value: 'https://github.com/mefmor/maven-positive-test1.git'),
+							string(name: 'store_folder', value: "${env.WORKSPACE}")]
+					}
+				}
+				
+				
+				stage('maven-negative-test1') {
+					steps {
+						build job: 'test-runner', parameters: [
+							string(name: 'repository', value: 'https://github.com/mefmor/maven-negative-test1.git'),
+							string(name: 'store_folder', value: "${env.WORKSPACE}")]
 					}
 				}
 				
 				stage('simple-java-maven-app') {
 					steps {
-						script {
-							def testRunner = build job: 'test-runner', parameters: [
-								string(name: 'repository', value: 'https://github.com/mefmor/simple-java-maven-app.git')]
-							
-							sh "cp -r ${testRunner.getBuildVariables()['TEST_WORKSPACE']}/target/surefire-reports/*.xml ."
-							
-							junit '*.xml'
-							
-						}
+						build job: 'test-runner', parameters: [
+							string(name: 'repository', value: 'https://github.com/mefmor/simple-java-maven-app.git'),
+							string(name: 'store_folder', value: "${env.WORKSPACE}")]
 					}
 				}
+				
 			}
+			post {
+                always {
+					sh 'ls'
+					junit '*.xml' 
+                }
+            }
 		}
 		
     }
