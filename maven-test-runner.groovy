@@ -13,6 +13,10 @@ pipeline {
     stages {
 		stage('Checkout') {
 			steps {
+				script {
+					env.TEST_WORKSPACE = env.WORKSPACE
+				}
+				
 				git "${params.repository}"
 			}
 		}
@@ -24,10 +28,6 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'mvn test'
-
-				script {
-					env.TEST_WORKSPACE = env.WORKSPACE
-				}
             }
             post {
                 always {
